@@ -5,35 +5,44 @@ import { defineMessages, intlShape } from 'react-intl';
 import SettingsMenuItem from './SettingsMenuItem';
 import styles from './SettingsMenu.scss';
 import { ROUTES } from '../../../routes-config';
+import environment from '../../../environment';
+import { THEMES } from '../../../themes';
+import type { Theme } from '../../../themes';
 
 const messages = defineMessages({
   general: {
     id: 'settings.menu.general.link.label',
     defaultMessage: '!!!General',
-    description: 'Label for the "General" link in the settings menu.',
+  },
+  paperWallet: {
+    id: 'settings.menu.paperWallet.link.label',
+    defaultMessage: '!!!Paper Wallet',
   },
   wallet: {
     id: 'settings.menu.wallet.link.label',
     defaultMessage: '!!!Wallet',
-    description: 'Label for the "Wallet" link in the settings menu.',
   },
   support: {
     id: 'settings.menu.support.link.label',
     defaultMessage: '!!!Support',
-    description: 'Label for the "Support" link in the settings menu.',
   },
   termsOfUse: {
     id: 'settings.menu.termsOfUse.link.label',
     defaultMessage: '!!!Terms of use',
-    description: 'Label for the "Terms of use" link in the settings menu.',
   },
+  adaRedemption: {
+    id: 'settings.menu.adaRedemption.link.label',
+    defaultMessage: '!!!Ada Redemption',
+  }
 });
 
-type Props = {
+type Props = {|
   isActiveItem: Function,
   onItemClick: Function,
   hasActiveWallet: boolean,
-};
+  currentLocale: string,
+  currentTheme: Theme,
+|};
 
 @observer
 export default class SettingsMenu extends Component<Props> {
@@ -44,16 +53,23 @@ export default class SettingsMenu extends Component<Props> {
 
   render() {
     const { intl } = this.context;
-    const { onItemClick, isActiveItem, hasActiveWallet } = this.props;
+    const { onItemClick, isActiveItem, hasActiveWallet, currentLocale, currentTheme } = this.props;
 
     return (
-      <div>
+      <div className={currentTheme === THEMES.YOROI_CLASSIC ? '' : styles.componentWrapper}>
         <div className={styles.component}>
           <SettingsMenuItem
             label={intl.formatMessage(messages.general)}
             onClick={() => onItemClick(ROUTES.SETTINGS.GENERAL)}
             active={isActiveItem(ROUTES.SETTINGS.GENERAL)}
             className="general"
+          />
+
+          <SettingsMenuItem
+            label={intl.formatMessage(messages.paperWallet)}
+            onClick={() => onItemClick(ROUTES.SETTINGS.PAPER_WALLET)}
+            active={isActiveItem(ROUTES.SETTINGS.PAPER_WALLET)}
+            className="paperWallet"
           />
 
           <SettingsMenuItem
@@ -81,6 +97,18 @@ export default class SettingsMenu extends Component<Props> {
             active={isActiveItem(ROUTES.SETTINGS.SUPPORT)}
             className="support"
           />
+
+          {(!environment.isMainnet() || currentLocale === 'ko-KR' || currentLocale === 'ja-JP') &&
+            // all unredemed Ada is held being either Japanese or Korean people
+            // avoid showing this menu option to all users to avoid confusing them
+            <SettingsMenuItem
+              label={intl.formatMessage(messages.adaRedemption)}
+              onClick={() => onItemClick(ROUTES.SETTINGS.ADA_REDEMPTION)}
+              active={isActiveItem(ROUTES.SETTINGS.ADA_REDEMPTION)}
+              className="adaRedemption"
+            />
+          }
+
         </div>
       </div>
     );

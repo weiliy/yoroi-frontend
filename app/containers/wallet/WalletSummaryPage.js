@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
-import { defineMessages, intlShape, FormattedHTMLMessage } from 'react-intl';
+import { intlShape, FormattedHTMLMessage } from 'react-intl';
 import environment from '../../environment';
 import type { Notification } from '../../types/notificationType';
 import NotificationMessage from '../../components/widgets/NotificationMessage';
@@ -20,17 +20,10 @@ const { formattedWalletAmount } = resolver('utils/formatters');
 
 type Props = InjectedProps
 
-const messages = defineMessages({
-  noTransactions: {
-    id: 'wallet.summary.no.transactions',
-    defaultMessage: '!!!No recent transactions',
-    description: 'Message shown when wallet has no transactions on wallet summary page.'
-  }
-});
-
 const targetNotificationIds = [
   globalMessages.walletCreatedNotificationMessage.id,
   globalMessages.walletRestoredNotificationMessage.id,
+  globalMessages.ledgerNanoSWalletIntegratedNotificationMessage.id,
   globalMessages.trezorTWalletIntegratedNotificationMessage.id,
 ];
 
@@ -67,27 +60,30 @@ export default class WalletSummaryPage extends Component<Props> {
       closeExportTransactionDialog,
     } = actions[environment.API].transactions;
 
-    const { uiDialogs } = this.props.stores;
+    const { uiDialogs, profile } = this.props.stores;
     if (searchOptions) {
       const { limit } = searchOptions;
-      const noTransactionsLabel = intl.formatMessage(messages.noTransactions);
       const noTransactionsFoundLabel = intl.formatMessage(globalMessages.noTransactionsFound);
       if (recentTransactionsRequest.isExecutingFirstTime || hasAny) {
         walletTransactions = (
           <WalletTransactionsList
             transactions={recent}
+            selectedExplorer={this.props.stores.profile.selectedExplorer}
             isLoadingTransactions={recentTransactionsRequest.isExecuting}
             hasMoreToLoad={totalAvailable > limit}
-            onLoadMore={actions.ada.transactions.loadMoreTransactions.trigger}
+            onLoadMore={() => actions.ada.transactions.loadMoreTransactions.trigger()}
             assuranceMode={wallet.assuranceMode}
             walletId={wallet.id}
             formattedWalletAmount={formattedWalletAmount}
           />
         );
       } else if (!hasAny) {
-        walletTransactions = <WalletNoTransactions label={noTransactionsFoundLabel} />;
-      } else if (!hasAny) {
-        walletTransactions = <WalletNoTransactions label={noTransactionsLabel} />;
+        walletTransactions = (
+          <WalletNoTransactions
+            label={noTransactionsFoundLabel}
+            classicTheme={profile.isClassicTheme}
+          />
+        );
       }
     }
 

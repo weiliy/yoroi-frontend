@@ -15,7 +15,6 @@ const messages = defineMessages({
   title: {
     id: 'settings.general.title',
     defaultMessage: '!!!General Settings',
-    description: 'General Settings Title.'
   },
 });
 
@@ -36,12 +35,15 @@ export default class Settings extends Component<InjectedContainerProps> {
 
   render() {
     const { actions, stores, children } = this.props;
-    const { topbar } = stores;
+    const { profile, topbar } = stores;
+
     const menu = (
       <SettingsMenu
         onItemClick={(route) => actions.router.goToRoute.trigger({ route })}
         isActiveItem={this.isActivePage}
         hasActiveWallet={stores.substores.ada.wallets.hasActiveWallet}
+        currentLocale={profile.currentLocale}
+        currentTheme={profile.currentTheme}
       />
     );
     const topbarTitle = (
@@ -59,6 +61,7 @@ export default class Settings extends Component<InjectedContainerProps> {
             activeTopbarCategory={topbar.activeTopbarCategory}
           />
         )}
+        classicTheme={profile.isClassicTheme}
       >
         <SettingsLayout menu={menu}>
           {children}

@@ -1,0 +1,14 @@
+.component {
+  .copyIconBig {
+    cursor: pointer;
+    object-fit: contain;
+    margin-left: 6px;
+    & > svg {
+      height: 14.5px;
+      width: 11.5px;
+      path {
+        fill: var(--theme-icon-copy-address-color);
+      }
+    }
+  }
+}

@@ -1,10 +1,15 @@
 import BigNumber from 'bignumber.js';
 import isInt from 'validator/lib/isInt';
+import { TOTAL_SUPPLY } from '../config/numbersConfig';
 
 export const isValidWalletName = (walletName) => {
   const nameLength = walletName.length;
   return nameLength >= 1 && nameLength <= 40;
 };
+
+export const isValidPaperPassword = (paperPassword) => (
+  isValidWalletPassword(paperPassword)
+);
 
 export const isValidWalletPassword = (walletPassword) => (
   // https://xkcd.com/936/
@@ -21,7 +26,6 @@ export const isValidAmountInLovelaces = (value: string) => {
   if (!isNumeric) return false;
   const numericValue = new BigNumber(value);
   const minValue = new BigNumber(1);
-  const maxValue = new BigNumber(45000000000000000);
-  const isValid = numericValue.gte(minValue) && numericValue.lte(maxValue);
+  const isValid = numericValue.gte(minValue) && numericValue.lte(TOTAL_SUPPLY);
   return isValid;
 };

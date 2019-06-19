@@ -7,12 +7,12 @@ import TopBar from '../../components/topbar/TopBar';
 import TopBarLayout from '../../components/layout/TopBarLayout';
 import TermsOfUseForm from '../../components/profile/terms-of-use/TermsOfUseForm';
 import type { InjectedProps } from '../../types/injectedPropsType';
+import TestnetWarningBanner from '../../components/topbar/banners/TestnetWarningBanner';
 
 const messages = defineMessages({
   title: {
     id: 'profile.termsOfUse.title',
     defaultMessage: '!!!Terms Of Use',
-    description: 'Terms of Use Title.'
   },
 });
 
@@ -30,7 +30,7 @@ export default class TermsOfUsePage extends Component<InjectedProps> {
   render() {
     const { setTermsOfUseAcceptanceRequest, termsOfUse } = this.props.stores.profile;
     const isSubmitting = setTermsOfUseAcceptanceRequest.isExecuting;
-    const { topbar } = this.props.stores;
+    const { topbar, profile } = this.props.stores;
     const topbarTitle = (
       <StaticTopbarTitle title={this.context.intl.formatMessage(messages.title)} />
     );
@@ -42,6 +42,8 @@ export default class TermsOfUsePage extends Component<InjectedProps> {
     return (
       <TopBarLayout
         topbar={topbarElement}
+        classicTheme={profile.isClassicTheme}
+        banner={<TestnetWarningBanner />}
       >
         <TermsOfUseForm
           localizedTermsOfUse={termsOfUse}

@@ -11,12 +11,15 @@ import type { Node } from 'react';
 import NoWalletsPage from './containers/wallet/NoWalletsPage';
 import WalletAddPage from './containers/wallet/WalletAddPage';
 import LanguageSelectionPage from './containers/profile/LanguageSelectionPage';
+import TermsOfUsePage from './containers/profile/TermsOfUsePage';
+
+// SETTINGS
 import Settings from './containers/settings/Settings';
 import GeneralSettingsPage from './containers/settings/categories/GeneralSettingsPage';
-import SupportSettingsPage from './containers/settings/categories/SupportSettingsPage';
-import TermsOfUseSettingsPage from './containers/settings/categories/TermsOfUseSettingsPage';
-import TermsOfUsePage from './containers/profile/TermsOfUsePage';
+import PaperWalletPage from './containers/settings/categories/PaperWalletPage';
 import WalletSettingsPage from './containers/settings/categories/WalletSettingsPage';
+import TermsOfUseSettingsPage from './containers/settings/categories/TermsOfUseSettingsPage';
+import SupportSettingsPage from './containers/settings/categories/SupportSettingsPage';
 
 // Dynamic container loading - resolver loads file relative to '/app/' directory
 const LoadingPage = resolver('containers/LoadingPage');
@@ -25,6 +28,7 @@ const WalletSummaryPage = resolver('containers/wallet/WalletSummaryPage');
 const WalletSendPage = resolver('containers/wallet/WalletSendPage');
 const WalletReceivePage = resolver('containers/wallet/WalletReceivePage');
 const DaedalusTransferPage = resolver('containers/transfer/DaedalusTransferPage');
+const AdaRedemptionPage = resolver('containers/wallet/AdaRedemptionPage');
 
 /* eslint-disable max-len */
 export const Routes = (
@@ -114,6 +118,11 @@ const SettingsSubpages = (stores, actions) => (
     />
     <Route
       exact
+      path={ROUTES.SETTINGS.PAPER_WALLET}
+      component={(props) => <PaperWalletPage {...props} stores={stores} actions={actions} />}
+    />
+    <Route
+      exact
       path={ROUTES.SETTINGS.TERMS_OF_USE}
       component={(props) => <TermsOfUseSettingsPage {...props} stores={stores} actions={actions} />}
     />
@@ -126,6 +135,11 @@ const SettingsSubpages = (stores, actions) => (
       exact
       path={ROUTES.SETTINGS.SUPPORT}
       component={(props) => <SupportSettingsPage {...props} stores={stores} actions={actions} />}
+    />
+    <Route
+      exact
+      path={ROUTES.SETTINGS.ADA_REDEMPTION}
+      component={(props) => <AdaRedemptionPage {...props} stores={stores} actions={actions} />}
     />
     <Redirect to={ROUTES.SETTINGS.GENERAL} />
   </Switch>

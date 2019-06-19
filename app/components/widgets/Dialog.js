@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
+import { observer } from 'mobx-react';
 import classnames from 'classnames';
 import type { Node } from 'react';
 import { Modal } from 'react-polymorph/lib/components/Modal';
@@ -8,7 +9,7 @@ import { ButtonSkin } from 'react-polymorph/lib/skins/simple/ButtonSkin';
 import { ModalSkin } from 'react-polymorph/lib/skins/simple/ModalSkin';
 import styles from './Dialog.scss';
 
-type Props = {
+type Props = {|
   title?: string,
   children?: Node,
   actions?: Node,
@@ -17,8 +18,10 @@ type Props = {
   className?: string,
   onClose?: Function,
   closeOnOverlayClick?: boolean,
-};
+  classicTheme: boolean
+|};
 
+@observer
 export default class Dialog extends Component<Props> {
   static defaultProps = {
     title: undefined,
@@ -41,7 +44,9 @@ export default class Dialog extends Component<Props> {
       className,
       closeButton,
       backButton,
+      classicTheme
     } = this.props;
+    const secondaryButton = classicTheme ? 'flat' : 'outlined';
 
     return (
       <Modal
@@ -51,7 +56,7 @@ export default class Dialog extends Component<Props> {
         skin={ModalSkin}
       >
 
-        <div className={classnames([styles.dialogWrapper, className])}>
+        <div className={classnames([styles.component, className])}>
           {title && (
             <div className={styles.title}>
               <h1>{title}</h1>
@@ -69,7 +74,7 @@ export default class Dialog extends Component<Props> {
               {_.map(actions, (action, key) => {
                 const buttonClasses = classnames([
                   action.className ? action.className : null,
-                  action.primary ? 'primary' : 'flat',
+                  action.primary ? 'primary' : secondaryButton,
                 ]);
                 return (
                   <Button

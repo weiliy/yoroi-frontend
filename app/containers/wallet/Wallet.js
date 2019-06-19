@@ -2,11 +2,13 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import MainLayout from '../MainLayout';
+import TopBarContainer from '../TopBarContainer';
 import WalletWithNavigation from '../../components/wallet/layouts/WalletWithNavigation';
 import LoadingSpinner from '../../components/widgets/LoadingSpinner';
 import { buildRoute } from '../../utils/routing';
 import { ROUTES } from '../../routes-config';
 import type { InjectedContainerProps } from '../../types/injectedPropsType';
+import AdaRedemptionSuccessOverlay from '../../components/wallet/ada-redemption/AdaRedemptionSuccessOverlay';
 
 type Props = InjectedContainerProps;
 
@@ -31,19 +33,31 @@ export default class Wallet extends Component<Props> {
   };
 
   render() {
-    const { wallets } = this.props.stores.substores.ada;
+    const { wallets, adaRedemption } = this.props.stores.substores.ada;
     const { actions, stores } = this.props;
-    if (!wallets.active) {
-      return <MainLayout actions={actions} stores={stores}><LoadingSpinner /></MainLayout>;
-    }
+    const { profile } = stores;
+    const { showAdaRedemptionSuccessMessage, amountRedeemed } = adaRedemption;
+    const topbarContainer = (<TopBarContainer actions={actions} stores={stores} />);
 
-    const footer = undefined;
+    if (!wallets.active) {
+      return (
+        <MainLayout
+          topbar={topbarContainer}
+          actions={actions}
+          stores={stores}
+          classicTheme={profile.isClassicTheme}
+        >
+          <LoadingSpinner />
+        </MainLayout>
+      );
+    }
 
     return (
       <MainLayout
+        topbar={topbarContainer}
         actions={actions}
         stores={stores}
-        footer={footer}
+        classicTheme={profile.isClassicTheme}
       >
         <WalletWithNavigation
           isActiveScreen={this.isActiveScreen}
@@ -51,6 +65,14 @@ export default class Wallet extends Component<Props> {
         >
           {this.props.children}
         </WalletWithNavigation>
+
+        {showAdaRedemptionSuccessMessage ? (
+          <AdaRedemptionSuccessOverlay
+            amount={amountRedeemed}
+            onClose={() => actions.ada.adaRedemption.closeAdaRedemptionSuccessOverlay.trigger()}
+            classicTheme={profile.isClassicTheme}
+          />
+        ) : null}
       </MainLayout>
     );
   }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 
-// Allow to swap the CSS used at runtime to allow user-defined themes
+/** Allow to swap the CSS used at runtime to allow user-defined themes */
 export default class ThemeManager extends Component {
   componentDidMount() {
     this.updateCSSVariables(this.props.variables);
@@ -19,6 +19,10 @@ export default class ThemeManager extends Component {
     });
   }
   render() {
-    return <div>{this.props.children}</div>;
+    return (
+      <div>
+        {this.props.children}
+      </div>
+    );
   }
 }

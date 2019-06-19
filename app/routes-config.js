@@ -16,10 +16,12 @@ export const ROUTES = {
   },
   SETTINGS: {
     ROOT: '/settings',
-    WALLET: '/settings/wallet',
     GENERAL: '/settings/general',
+    PAPER_WALLET: '/settings/paper-wallet',
+    WALLET: '/settings/wallet',
     TERMS_OF_USE: '/settings/terms-of-use',
     SUPPORT: '/settings/support',
+    ADA_REDEMPTION: '/settings/ada-redemption',
   },
   DAEDALUS_TRANFER: {
     ROOT: '/daedalus-transfer',

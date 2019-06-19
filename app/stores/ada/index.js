@@ -10,35 +10,63 @@ import AddressesStore from './AdaAddressesStore';
 import DaedalusTransferStore from './DaedalusTransferStore';
 import TrezorConnectStore from './TrezorConnectStore';
 import TrezorSendStore from './TrezorSendStore';
+import AdaRedemptionStore from './AdaRedemptionStore';
+import AdaTransactionBuilderStore from './AdaTransactionBuilderStore';
+import LedgerConnectStore from './LedgerConnectStore';
+import LedgerSendStore from './LedgerSendStore';
+import HWVerifyAddressStore from './HWVerifyAddressStore';
+import PaperWalletCreateStore from './PaperWalletCreateStore';
+import StateFetchStore from './StateFetchStore';
 
 export const adaStoreClasses = {
+  adaRedemption: AdaRedemptionStore,
   wallets: AdaWalletsStore,
-  transactions: TransactionsStore,
-  walletSettings: AdaWalletSettingsStore,
-  addresses: AddressesStore,
-  daedalusTransfer: DaedalusTransferStore,
-  trezorConnect: TrezorConnectStore,
-  trezorSend: TrezorSendStore
-};
-
-export type AdaStoresMap = {
-  wallets: AdaWalletsStore,
+  paperWallets: PaperWalletCreateStore,
   transactions: TransactionsStore,
   walletSettings: AdaWalletSettingsStore,
   addresses: AddressesStore,
   daedalusTransfer: DaedalusTransferStore,
   trezorConnect: TrezorConnectStore,
   trezorSend: TrezorSendStore,
+  ledgerConnect: LedgerConnectStore,
+  ledgerSend: LedgerSendStore,
+  hwVerifyAddress: HWVerifyAddressStore,
+  stateFetchStore: StateFetchStore,
+  transactionBuilderStore: AdaTransactionBuilderStore,
+};
+
+export type AdaStoresMap = {
+  adaRedemption: AdaRedemptionStore,
+  wallets: AdaWalletsStore,
+  paperWallets: PaperWalletCreateStore,
+  transactions: TransactionsStore,
+  walletSettings: AdaWalletSettingsStore,
+  addresses: AddressesStore,
+  daedalusTransfer: DaedalusTransferStore,
+  trezorConnect: TrezorConnectStore,
+  trezorSend: TrezorSendStore,
+  ledgerConnect: LedgerConnectStore,
+  ledgerSend: LedgerSendStore,
+  hwVerifyAddress: HWVerifyAddressStore,
+  stateFetchStore: StateFetchStore,
+  transactionBuilderStore: AdaTransactionBuilderStore,
 };
 
 const adaStores = observable({
+  adaRedemption: null,
   wallets: null,
+  paperWallets: null,
   transactions: null,
   walletSettings: null,
   addresses: null,
   daedalusTransfer: null,
   trezorConnect: null,
   trezorSend: null,
+  ledgerConnect: null,
+  ledgerSend: null,
+  hwVerifyAddress: null,
+  stateFetchStore: null,
+  transactionBuilderStore: null,
 });
 
 /** See `stores` index for description of this weird behavior

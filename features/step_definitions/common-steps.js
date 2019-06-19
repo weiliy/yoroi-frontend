@@ -1,9 +1,13 @@
 // @flow
 
-import { Before, BeforeAll, Given, After, AfterAll, setDefinitionFunctionWrapper } from 'cucumber';
-import { getMockServer, closeMockServer } from '../support/mockServer';
-import { buildFeatureData, getFeatureData, getFakeAddresses } from '../support/mockDataBuilder';
+import { Before, BeforeAll, Given, Then, After, AfterAll, setDefinitionFunctionWrapper, setDefaultTimeout } from 'cucumber';
+import { getMockServer, closeMockServer } from '../mock-chain/mockServer';
 import i18nHelper from '../support/helpers/i18n-helpers';
+import { By } from 'selenium-webdriver';
+import { enterRecoveryPhrase, assertPlate } from './wallet-restoration-steps';
+import { testWallets } from '../mock-chain/TestWallets';
+import { resetChain } from '../mock-chain/mockImporter';
+import { expect } from 'chai';
 
 const { promisify } = require('util');
 const fs = require('fs');
@@ -21,6 +25,7 @@ const testProgress = {
 BeforeAll(() => {
   rimraf.sync(screenshotsDir);
   fs.mkdirSync(screenshotsDir);
+  setDefaultTimeout(60 * 1000);
 
   getMockServer({});
 });
@@ -34,14 +39,35 @@ Before((scenario) => {
   testProgress.scenarioName = scenario.pickle.name.replace(/[^0-9a-z_ ]/gi, '');
   testProgress.lineNum = scenario.sourceLocation.line;
   testProgress.step = 0;
+
+  // reset our mock chain to avoid modifications bleeding into other tests
+  resetChain();
 });
 
+Before({ tags: '@invalidWitnessTest' }, () => {
+  closeMockServer();
+  getMockServer({
+    signedTransaction: (req, res) => {
+      res.status(400).jsonp({
+        message: 'Invalid witness'
+      });
+    }
+  });
+});
+
+After({ tags: '@invalidWitnessTest' }, () => {
+  closeMockServer();
+  getMockServer({});
+});
 
 After(async function () {
   await this.driver.quit();
 });
 
 const writeFile = promisify(fs.writeFile);
+
+// Steps that contain these patterns will trigger screenshots:
+const SCREENSHOT_STEP_PATTERNS = ['I should see', 'I click', 'by clicking'];
 
 /** Wrap every step to take screenshots for UI-based testing */
 setDefinitionFunctionWrapper((fn, _, pattern) => {
@@ -54,17 +80,8 @@ setDefinitionFunctionWrapper((fn, _, pattern) => {
     // Regex patterns contain non-ascii characters.
     // We want to remove this to get a filename-friendly string
     const cleanString = pattern.toString().replace(/[^0-9a-z_ ]/gi, '');
-
-    if (cleanString.includes('I should see')) {
-      // path logic
-      const dir = `${screenshotsDir}/${testProgress.scenarioName}`;
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-      }
-      const path = `${dir}/${testProgress.step}_${testProgress.lineNum}-${cleanString}.png`;
-
-      const screenshot = await this.driver.takeScreenshot();
-      await writeFile(path, screenshot, 'base64');
+    if (SCREENSHOT_STEP_PATTERNS.some(pat => cleanString.includes(pat))) {
+      await takeScreenshot(this.driver, cleanString);
     }
 
     testProgress.step += 1;
@@ -72,8 +89,39 @@ setDefinitionFunctionWrapper((fn, _, pattern) => {
   };
 });
 
-Given(/^I am testing "([^"]*)"$/, feature => {
-  buildFeatureData(feature);
+async function takeScreenshot(driver, name) {
+  // path logic
+  const dir = `${screenshotsDir}/${testProgress.scenarioName}`;
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  const path = `${dir}/${testProgress.step}_${testProgress.lineNum}-${name}.png`;
+
+  const screenshot = await driver.takeScreenshot();
+  await writeFile(path, screenshot, 'base64');
+}
+
+Given(/^There is a wallet stored named ([^"]*)$/, async function (walletName) {
+  const restoreInfo = testWallets[walletName];
+  expect(restoreInfo).to.not.equal(undefined);
+
+  await this.click('.WalletAdd_btnRestoreWallet');
+  await this.waitForElement('.WalletRestoreOptionDialog');
+
+  await this.click('.WalletRestoreOptionDialog_restoreNormalWallet');
+  await this.waitForElement('.WalletRestoreDialog');
+
+  await this.input("input[name='walletName']", restoreInfo.name);
+  await enterRecoveryPhrase(
+    this,
+    restoreInfo.mnemonic,
+  );
+  await this.input("input[name='walletPassword']", restoreInfo.password);
+  await this.input("input[name='repeatPassword']", restoreInfo.password);
+  await this.click('.WalletRestoreDialog .primary');
+  await assertPlate(this, restoreInfo.plate);
+  await this.click('.confirmButton');
+  await this.waitUntilText('.WalletTopbarTitle_walletName', walletName.toUpperCase());
 });
 
 Given(/^I have completed the basic setup$/, async function () {
@@ -82,6 +130,7 @@ Given(/^I have completed the basic setup$/, async function () {
 
   await i18nHelper.setActiveLanguage(this.driver);
 
+  await this.click('.LanguageSelectionForm_submitButton');
   await this.waitForElement('.TermsOfUseForm_component');
   await this.driver.executeScript(() => {
     window.yoroi.actions.profile.acceptTermsOfUse.trigger();
@@ -94,22 +143,24 @@ Given(/^I have opened the extension$/, async function () {
 
 Given(/^I refresh the page$/, async function () {
   await this.driver.navigate().refresh();
+  await this.driver.sleep(500); // give time for page to reload
 });
 
 Given(/^I restart the browser$/, async function () {
   await this.driver.manage().deleteAllCookies();
   await this.driver.navigate().refresh();
+  await this.driver.sleep(500); // give time for page to reload
 });
 
 Given(/^There is no wallet stored$/, async function () {
   await refreshWallet(this);
-  await this.waitForElement('.WalletAdd');
+  await this.waitForElement('.WalletAdd_component');
 });
 
-Given(/^There is a wallet stored named (.*)$/, async function (walletName) {
-  await storeWallet(this, walletName);
-  await this.waitUntilText('.WalletTopbarTitle_walletName', walletName.toUpperCase());
+Then(/^I click then button labeled (.*)$/, async function (buttonName) {
+  await this.click(`//button[contains(text(), ${buttonName})]`, By.xpath);
 });
+
 
 function refreshWallet(client) {
   return client.driver.executeAsyncScript((done) => {
@@ -117,35 +168,4 @@ function refreshWallet(client) {
       .then(done)
       .catch(err => done(err));
   });
-}
-
-async function storeWallet(client, walletName) {
-  const featureData = getFeatureData();
-  if (!featureData) {
-    return;
-  }
-  const { masterKey, wallet, cryptoAccount, adaAddresses, walletInitialData } = featureData;
-  if (wallet === undefined) {
-    return;
-  }
-  wallet.cwMeta.cwName = walletName;
-
-  await client.saveToLocalStorage('WALLET', { adaWallet: wallet, masterKey });
-  await client.saveToLocalStorage('ACCOUNT', cryptoAccount);
-
-  /* Obs: If "with $number addresses" is include in the sentence,
-     we override the wallet with fake addresses" */
-  if (walletName &&
-      walletInitialData &&
-      walletInitialData[walletName] &&
-      walletInitialData[walletName].totalAddresses
-  ) {
-    client.saveAddressesToDB(getFakeAddresses(
-      walletInitialData[walletName].totalAddresses,
-      walletInitialData[walletName].addressesStartingWith
-    ));
-  } else {
-    client.saveAddressesToDB(adaAddresses);
-  }
-  await refreshWallet(client);
 }

@@ -4,20 +4,24 @@ import classNames from 'classnames';
 import SvgInline from 'react-svg-inline';
 
 import iconTickSVG from '../../assets/images/widget/tick.inline.svg';
+import iconTickGreenSVG from '../../assets/images/widget/tick-green.inline.svg';
 import iconCrossSVG from '../../assets/images/widget/cross.inline.svg';
+import iconCrossGreenSVG from '../../assets/images/widget/cross-green.inline.svg';
 import styles from './ProgressSteps.scss';
 
-type Props = {
+type Props = {|
   stepsList: Array<string>,
   progressInfo: {
     currentStep : number, // example, 0 = pointing to stepsList[0]
     stepState: number, // has three states, 0 = LOAD | 1 = PROCESS | 9 = ERROR
-  }
-};
+  },
+  classicTheme: boolean
+|};
 @observer
 export default class ProgressSteps extends Component<Props> {
 
   createSetps = (stepsList, progressInfo): Array<Element> => {
+    const { classicTheme } = this.props;
     const steps = [];
 
     // currentStep should not be less than 0
@@ -26,8 +30,8 @@ export default class ProgressSteps extends Component<Props> {
     for (let idx = 0; idx < stepsList.length; idx++) {
       const stepText = stepsList[idx];
 
-      let stepTopBarStyle = classNames([styles.stepTopBar]);
-      let stepTextStyle = classNames([styles.stepText]);
+      let stepTopBarStyle = styles.stepTopBar;
+      let stepTextStyle = styles.stepText;
       let displayIcon = 'none';
 
       if (idx < currentStep) {
@@ -60,8 +64,8 @@ export default class ProgressSteps extends Component<Props> {
           <div className={stepTopBarStyle} />
           <div className={styles.stepBottomBlock}>
             <div className={styles.stepStateIconContainer}>
-              {(displayIcon === 'done') && <SvgInline svg={iconTickSVG} cleanup={['title']} />}
-              {(displayIcon === 'error') && <SvgInline svg={iconCrossSVG} cleanup={['title']} />}
+              {(displayIcon === 'done') && <SvgInline svg={classicTheme ? iconTickSVG : iconTickGreenSVG} />}
+              {(displayIcon === 'error') && <SvgInline svg={classicTheme ? iconCrossSVG : iconCrossGreenSVG} />}
             </div>
             <div className={styles.stepTextContainer}>
               <span className={stepTextStyle}>{stepText}</span>
@@ -77,7 +81,7 @@ export default class ProgressSteps extends Component<Props> {
   render() {
     const { stepsList, progressInfo } = this.props;
     return (
-      <div className={classNames([styles.outer])}>
+      <div className={styles.component}>
         {this.createSetps(stepsList, progressInfo)}
       </div>
     );

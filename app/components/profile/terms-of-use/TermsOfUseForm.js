@@ -14,22 +14,20 @@ import styles from './TermsOfUseForm.scss';
 const messages = defineMessages({
   checkboxLabel: {
     id: 'profile.termsOfUse.checkboxLabel',
-    defaultMessage: '!!!I agree with terms of use',
-    description: 'Label for the "I agree with terms of use" checkbox.'
+    defaultMessage: '!!!I agree with the terms of use',
   },
   submitLabel: {
     id: 'profile.termsOfUse.submitLabel',
     defaultMessage: '!!!Continue',
-    description: 'Label for the "Terms of use" form submit button.'
   },
 });
 
-type Props = {
+type Props = {|
   localizedTermsOfUse: string,
   onSubmit: Function,
   isSubmitting: boolean,
   error?: ?LocalizableError,
-};
+|};
 
 type State = {
   areTermsOfUseAccepted: boolean,
@@ -61,18 +59,18 @@ export default class TermsOfUseForm extends Component<Props, State> {
     const { intl } = this.context;
     const { isSubmitting, error, localizedTermsOfUse } = this.props;
     const { areTermsOfUseAccepted } = this.state;
+
     const buttonClasses = classnames([
       'primary',
       isSubmitting ? styles.submitButtonSpinning : styles.submitButton,
     ]);
 
     const checkboxLabel = 'checkboxLabel';
-
     return (
       <div className={styles.component}>
         <div className={styles.centeredBox}>
 
-          <TermsOfUseText localizedTermsOfUse={localizedTermsOfUse} />
+          <TermsOfUseText localizedTermsOfUse={localizedTermsOfUse} fixedHeight />
 
           <div className={styles.checkbox}>
             <Checkbox
@@ -81,18 +79,17 @@ export default class TermsOfUseForm extends Component<Props, State> {
               checked={areTermsOfUseAccepted}
               skin={CheckboxSkin}
             />
+
+            <Button
+              className={buttonClasses}
+              label={intl.formatMessage(messages.submitLabel)}
+              onMouseUp={this.submit}
+              disabled={!areTermsOfUseAccepted}
+              skin={ButtonSkin}
+            />
           </div>
 
           {error && <p className={styles.error}>{intl.formatMessage(error)}</p>}
-
-          <Button
-            className={buttonClasses}
-            label={intl.formatMessage(messages.submitLabel)}
-            onMouseUp={this.submit}
-            disabled={!areTermsOfUseAccepted}
-            skin={ButtonSkin}
-          />
-
         </div>
       </div>
     );

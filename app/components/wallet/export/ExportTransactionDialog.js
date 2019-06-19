@@ -16,26 +16,23 @@ const messages = defineMessages({
   dialogTitle: {
     id: 'wallet.transaction.export.dialog.title',
     defaultMessage: '!!!Export transactions to file',
-    description: 'Dialog title'
   },
   infoText1: {
     id: 'wallet.transaction.export.dialog.infoText1',
     defaultMessage: '!!!The entire transaction history within your wallet will be exported to a file',
-    description: 'info text about entire transaction history export'
   },
   exportButtonLabel: {
     id: 'wallet.transaction.export.dialog.exportButton.label',
     defaultMessage: '!!!Export',
-    description: '"Export" button label'
   }
 });
 
-type Props = {
+type Props = {|
   isActionProcessing: ?boolean,
   error: ?LocalizableError,
   submit: Function,
   cancel: Function,
-};
+|};
 
 @observer
 export default class ExportTransactionDialog extends Component<Props> {

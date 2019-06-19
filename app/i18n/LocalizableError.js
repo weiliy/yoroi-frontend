@@ -2,31 +2,36 @@
 import ExtendableError from 'es6-error';
 import { defineMessages } from 'react-intl';
 
+import type { MessageDescriptor } from 'react-intl';
+
 const messages = defineMessages({
   unknowError: {
     id: 'app.errors.unknowError',
     defaultMessage: '!!!Unknow error.',
-    description: 'Unknow error message.'
   },
   unexpectedError: {
     id: 'app.errors.unexpectedError',
     defaultMessage: '!!!Something unexpected happened. Please retry.',
-    description: '"Something unexpected happened. Please retry." error message.'
   },
 });
 
 // Base class to allow wrapping a localizable message into an ES6-error
 class LocalizableError extends ExtendableError {
+
+  id: string;
+  defaultMessage: string;
+  values: Object;
+
   constructor(
-    { id, defaultMessage, values = {} }:
-    { id: string, defaultMessage: string, values?: Object}
+    { id, defaultMessage, values }:
+    { ...$Exact<MessageDescriptor>, values?: Object}
   ) {
     if (!id) throw new Error('id:string is required.');
     if (!defaultMessage) throw new Error('defaultMessage:string is required.');
     super(`${id}: ${JSON.stringify(values)}`);
     this.id = id;
     this.defaultMessage = defaultMessage;
-    this.values = values;
+    this.values = values || {};
   }
 }
 
@@ -36,7 +41,7 @@ class UnknowError extends LocalizableError {
   constructor() {
     super({
       id: messages.unknowError.id,
-      defaultMessage: messages.unknowError.defaultMessage,
+      defaultMessage: messages.unknowError.defaultMessage || '',
     });
   }
 }
@@ -45,7 +50,7 @@ export class UnexpectedError extends LocalizableError {
   constructor() {
     super({
       id: messages.unexpectedError.id,
-      defaultMessage: messages.unexpectedError.defaultMessage,
+      defaultMessage: messages.unexpectedError.defaultMessage || '',
     });
   }
 }
