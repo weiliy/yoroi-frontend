@@ -9,7 +9,6 @@ import { THEMES } from '../../themes';
 import type { Theme } from '../../themes';
 import { ROUTES } from '../../routes-config';
 import globalMessages from '../../i18n/global-messages';
-import registerProtocols from '../../uri-protocols';
 import type { ExplorerType } from '../../domain/Explorer';
 import type {
   GetSelectedExplorerFunc, SaveSelectedExplorerFunc,
@@ -108,7 +107,6 @@ export default class ProfileStore extends Store {
       this._redirectToLanguageSelectionIfNoLocaleSet,
       this._redirectToTermsOfUseScreenIfTermsNotAccepted,
       this._redirectToMainUiAfterTermsAreAccepted,
-      this._attemptURIProtocolRegistrationIfNoLocaleSet,
     ]);
     this._getTermsOfUseAcceptance(); // eagerly cache
   }
@@ -383,16 +381,6 @@ export default class ProfileStore extends Store {
   _redirectToMainUiAfterTermsAreAccepted = () => {
     if (this.areTermsOfUseAccepted && this._isOnTermsOfUsePage()) {
       this._redirectToRoot();
-    }
-  };
-
-  // ========== URI protocol registration ========== //
-
-  _attemptURIProtocolRegistrationIfNoLocaleSet = () => {
-    const { isLoading } = this.stores.loading;
-    if (!isLoading && !this.areTermsOfUseAccepted && !this.isCurrentLocaleSet) {
-      // this is likely the first time the user launches the app
-      registerProtocols();
     }
   };
 }

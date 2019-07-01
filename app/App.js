@@ -24,9 +24,12 @@ import { THEMES } from './themes';
 import ThemeManager from './ThemeManager';
 import environment from './environment';
 import { hot } from 'react-hot-loader';
+import registerProtocols from './uri-protocols';
 
 // https://github.com/yahoo/react-intl/wiki#loading-locale-data
 addLocaleData([...en, ...ko, ...ja, ...zh, ...ru, ...de, ...fr, ...id, ...es, ...it]);
+
+registerProtocols();
 
 @observer
 class App extends Component<{
