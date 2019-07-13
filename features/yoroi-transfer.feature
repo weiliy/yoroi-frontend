@@ -36,6 +36,7 @@ Feature: Transfer Yoroi Wallet funds
     
   @it-112
   Scenario: Yoroi transfer should be disabled when user hasn't created a wallet
+    Then I should see the Create wallet screen
     And I am on the Yoroi Transfer start screen
     Then I should see the next button on the Yoroi transfer start screen disabled
     When I click on the create Yoroi wallet button
