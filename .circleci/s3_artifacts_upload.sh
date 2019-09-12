@@ -16,9 +16,13 @@ export AWS_REGION="${ARTIFACTS_REGION}"
 S3_BUCKET="${ARTIFACTS_BUCKET}"
 S3_ENDPOINT="https://${S3_BUCKET}.s3.amazonaws.com"
 
-# compare with PR base branch's screenshots and add diferences
-if [ -z "${PR_NUMBER}" ]
+if [ ! -z "${PR_NUMBER}" ]
 then
-  #aws s3 cp artifacts "s3://${S3_BUCKET}/${DIFFERENCE_OBJECT_KEY}"
-  echo "TODO: release on GH releases page"
+  OBJECT_KEY_BASEPATH="artifacts/${browser}/${PR_NUMBER}-${GIT_SHORT_COMMIT}"
+else
+  OBJECT_KEY_BASEPATH="artifacts/${browser}/${BRANCH}"
 fi
+
+aws s3 sync --only-show-errors artifacts "s3://${S3_BUCKET}/${OBJECT_KEY_BASEPATH}"
+
+#echo "TODO: release on GH releases page"
