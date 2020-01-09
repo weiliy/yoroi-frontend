@@ -62,7 +62,7 @@ const rules = (isProd /*: boolean */) => [
     use: [
       {
         loader: 'thread-loader',
-        options: process.env.CIRCLE_NODE_TOTAL != null ? {} : {
+        options: process.env.CIRCLE_NODE_TOTAL == null ? {} : {
           workers: process.env.CIRCLE_NODE_TOTAL,
         },
       },
@@ -93,7 +93,7 @@ const rules = (isProd /*: boolean */) => [
     use: [
       {
         loader: 'thread-loader',
-        options: process.env.CIRCLE_NODE_TOTAL != null ? {} : {
+        options: process.env.CIRCLE_NODE_TOTAL == null ? {} : {
           workers: process.env.CIRCLE_NODE_TOTAL,
         },
       },
@@ -117,7 +117,7 @@ const rules = (isProd /*: boolean */) => [
     use: [
       {
         loader: 'thread-loader',
-        options: process.env.CIRCLE_NODE_TOTAL != null ? {} : {
+        options: process.env.CIRCLE_NODE_TOTAL == null ? {} : {
           workers: process.env.CIRCLE_NODE_TOTAL,
         },
       },
