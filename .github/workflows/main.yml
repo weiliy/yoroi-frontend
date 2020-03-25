@@ -1,6 +1,7 @@
 name: Publish to Nightly
 
 on:
+  push:
   # todo: more sensible trigger
   schedule:
     # Monday-Friday at 2AM UTC
